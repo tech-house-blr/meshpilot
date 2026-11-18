@@ -1,0 +1,73 @@
+/* Motion layer: one easing curve, transform and opacity only, disabled by prefers-reduced-motion. */
+:root { --mo: cubic-bezier(0.22, 1, 0.36, 1); --mo-soft: cubic-bezier(0.32, 0.72, 0, 1); }
+
+/* page entrance, staggered */
+@keyframes mo-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes mo-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes mo-pop { from { opacity: 0; transform: translateY(-6px) scale(0.97); } to { opacity: 1; transform: none; } }
+#main .page > header { animation: mo-fade 360ms var(--mo) backwards; }
+#main .page > :is(.surface, .panels, .tools, .clockwrap, .fm, .errbox, section, p, ul),
+#live > * { animation: mo-rise 560ms var(--mo) backwards; }
+#main .page > :nth-child(2), #live > :nth-child(1) { animation-delay: 30ms; }
+#main .page > :nth-child(3), #live > :nth-child(2) { animation-delay: 90ms; }
+#main .page > :nth-child(4), #live > :nth-child(3) { animation-delay: 150ms; }
+#main .page > :nth-child(5), #live > :nth-child(4) { animation-delay: 210ms; }
+#main .page > :nth-child(n+6), #live > :nth-child(n+5) { animation-delay: 270ms; }
+.panels > .panel, .panels > .stackc, .panels > .tile { animation: mo-rise 600ms var(--mo) backwards; }
+.panels > :nth-child(1) { animation-delay: 60ms; } .panels > :nth-child(2) { animation-delay: 110ms; }
+.panels > :nth-child(3) { animation-delay: 160ms; } .panels > :nth-child(4) { animation-delay: 210ms; }
+.panels > :nth-child(5) { animation-delay: 260ms; } .panels > :nth-child(6) { animation-delay: 310ms; }
+
+/* surfaces and panels respond to the pointer */
+.surface, .panel { transition: border-color 260ms var(--mo), background-color 260ms var(--mo), box-shadow 320ms var(--mo), transform 320ms var(--mo); }
+.panels > .panel:hover, .surface:hover { border-color: var(--color-rule-2); }
+
+/* buttons */
+.btn, .seg button, .tog, .tile, .side a, .cmenu button, input, select, textarea, .chip {
+  transition: background-color 200ms var(--mo), border-color 200ms var(--mo), color 200ms var(--mo), box-shadow 240ms var(--mo), transform 200ms var(--mo), opacity 200ms var(--mo);
+}
+.btn:hover:not([disabled]), .seg button:hover { transform: translateY(-1px); }
+.btn:active:not([disabled]), .seg button:active, .tog:active, .tile:active { transform: scale(0.96); transition-duration: 90ms; }
+.tile:hover { transform: translateY(-2px); }
+.tile { will-change: transform; }
+input:focus-visible, select:focus-visible, textarea:focus-visible { box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-accent) 22%, transparent); }
+
+/* sidebar */
+.side a .ic { transition: transform 260ms var(--mo), color 200ms var(--mo); }
+.side a:hover .ic { transform: translateX(2px) scale(1.08); }
+.side a[aria-current="page"] .ic { color: var(--color-accent); }
+.side a:active { transform: scale(0.97); }
+.side .lb { transition: opacity 200ms var(--mo); }
+.side { transition: transform 360ms var(--mo-soft), width 320ms var(--mo-soft); }
+
+/* dialog, toast, context menu */
+dialog { opacity: 0; transform: translateY(12px) scale(0.97); transition: opacity 240ms var(--mo), transform 320ms var(--mo), overlay 240ms allow-discrete, display 240ms allow-discrete; }
+dialog[open] { opacity: 1; transform: none; }
+@starting-style { dialog[open] { opacity: 0; transform: translateY(12px) scale(0.97); } }
+dialog::backdrop { opacity: 0; transition: opacity 260ms var(--mo), overlay 260ms allow-discrete, display 260ms allow-discrete; }
+dialog[open]::backdrop { opacity: 1; }
+@starting-style { dialog[open]::backdrop { opacity: 0; } }
+#toast { animation: mo-pop 320ms var(--mo) backwards; }
+.cmenu { animation: mo-pop 180ms var(--mo) backwards; transform-origin: top left; }
+
+/* lists and rows: fade on hover only, no entrance (these re-render on a timer) */
+tbody tr td { transition: background-color 180ms var(--mo); }
+.it { transition: background-color 160ms var(--mo), transform 200ms var(--mo); }
+.fview.grid .it:hover { transform: translateY(-2px); }
+
+/* meters and gauges ease longer */
+.meter > i, .cb i { transition-duration: 700ms !important; transition-timing-function: var(--mo) !important; }
+.gfg { transition-duration: 900ms !important; transition-timing-function: var(--mo) !important; }
+
+/* desktop preview */
+#dscr { animation: mo-fade 600ms var(--mo) backwards; }
+#dscr canvas { transition: opacity 400ms var(--mo); }
+
+/* smooth scroll and view transitions between pages */
+html { scroll-behavior: smooth; }
+#main { scroll-behavior: smooth; }
+@view-transition { navigation: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
