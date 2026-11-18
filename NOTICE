@@ -1,0 +1,8 @@
+Mesh Pilot
+Copyright 2026 Shreyas Salankimatt and Mesh Pilot contributors
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Third-party components bundled in this repository keep their own licenses:
+
+  noVNC (static/novnc/)   MPL 2.0 for core library files; see static/novnc/LICENSE.txt
