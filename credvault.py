@@ -39,8 +39,9 @@ MIGRATIONS = {}
 
 
 class Vault:
-    def __init__(self, path, key_path):
+    def __init__(self, path, key_path, audit=None):
         self.path, self.key_path = path, key_path
+        self._audit = audit  # optional AuditLog; only the secret's name is ever recorded
         self._lock = threading.Lock()
         self._key = self._load_key()
 
@@ -87,9 +88,15 @@ class Vault:
         with self._lock:
             return sorted(self._open()[1])
 
+    def _note(self, event, name):
+        if self._audit:
+            self._audit.record(event, name=name)
+
     def get(self, name):
         with self._lock:
-            return self._open()[1].get(name)
+            val = self._open()[1].get(name)
+        self._note("vault.read", name)
+        return val
 
     def set(self, name, value):
         if not name or not isinstance(name, str):
@@ -98,6 +105,7 @@ class Vault:
             _, items = self._open()
             items[name] = value
             self._save(items)
+        self._note("vault.write", name)
 
     def delete(self, name):
         with self._lock:
@@ -105,4 +113,6 @@ class Vault:
             existed = items.pop(name, None) is not None
             if existed:
                 self._save(items)
-            return existed
+        if existed:
+            self._note("vault.delete", name)
+        return existed

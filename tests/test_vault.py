@@ -39,6 +39,14 @@ class VaultTest(unittest.TestCase):
         with self.assertRaises(VaultError):
             v.names()
 
+    def test_access_is_audited_by_name_only(self):
+        from audit import AuditLog
+        a = AuditLog(os.path.join(self.d.name, "audit.log"))
+        v = Vault(self.p, self.k, audit=a)
+        v.set("vnc:atlas", "topsecret"); v.get("vnc:atlas"); v.delete("vnc:atlas")
+        self.assertEqual([e["event"] for e in a.tail()], ["vault.delete", "vault.read", "vault.write"])
+        self.assertNotIn("topsecret", open(a.path).read())
+
     def test_delete(self):
         v = Vault(self.p, self.k)
         v.set("a", 1)

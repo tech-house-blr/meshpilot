@@ -3,6 +3,7 @@ from functools import wraps
 
 import psutil
 import connectors
+from audit import AuditLog
 from flask import Flask, jsonify, render_template, send_file, request, session, redirect, url_for, abort
 from werkzeug.security import check_password_hash
 
@@ -14,6 +15,7 @@ app.secret_key = conf["secret_key"]
 app.config.update(SESSION_COOKIE_SAMESITE="Strict", SESSION_COOKIE_HTTPONLY=True,
                   PERMANENT_SESSION_LIFETIME=60 * 60 * 12, MAX_CONTENT_LENGTH=2 * 1024 ** 3)
 psutil.cpu_percent(percpu=True)
+audit = AuditLog(os.path.join(BASE, "audit.log"))
 
 UNIT_RE = re.compile(r"^[A-Za-z0-9:_.@\\-]+\.(service|timer|socket)$")
 
@@ -79,6 +81,35 @@ def api(f):
     return w
 
 
+# ---------- audit ----------
+AUDITED_GET = {"/api/fs/download"}
+
+
+@app.after_request
+def audit_requests(resp):
+    p = request.path
+    if not p.startswith("/api/") or not session.get("auth"):
+        return resp
+    if request.method == "POST" or p in AUDITED_GET:
+        d = request.get_json(silent=True) if request.is_json else None
+        src = d if isinstance(d, dict) else {}
+        src = {**request.args.to_dict(), **request.form.to_dict(), **src}
+        outcome = "ok" if resp.status_code < 400 else ("denied" if resp.status_code in (401, 403) else "error")
+        if outcome == "ok" and resp.is_json and not resp.direct_passthrough:
+            body = resp.get_json(silent=True)
+            if isinstance(body, dict) and (body.get("ok") is False or body.get("error")):
+                outcome = "error"
+        audit.record(p[5:].strip("/").replace("/", "."), ip=request.remote_addr, outcome=outcome, **src)
+    return resp
+
+
+@app.route("/api/audit")
+@api
+def audit_view():
+    ok, n, bad = audit.verify()
+    return jsonify(entries=audit.tail(300), chain=dict(ok=ok, checked=n, broken_at=bad))
+
+
 # ---------- auth ----------
 _fails = {}
 
@@ -96,15 +127,19 @@ def login():
             session.clear()
             session.permanent = True
             session["auth"] = True
+            audit.record("login", ip=ip)
             return redirect(url_for("index"))
         else:
             _fails[ip] = (n + 1, time.time())
+            audit.record("login", ip=ip, outcome="denied")
             err = "Invalid password."
     return render_template("login.html", err=err)
 
 
 @app.route("/logout")
 def logout():
+    if session.get("auth"):
+        audit.record("logout", ip=request.remote_addr)
     session.clear()
     return redirect(url_for("login"))
 
