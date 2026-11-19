@@ -4,6 +4,8 @@ All notable changes are recorded here. The format follows [Keep a Changelog](htt
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-19
+
 ### Added
 - Encrypted credential vault (`credvault.py`): AES-256-GCM, key in `vault.key` (0600), versioned file format with automatic migration on open.
 - Audit log (`audit.py`, `audit.log`): sign-ins, sign-outs, every state-changing API call, file downloads and vault access. Entries are hash-chained, so edits or deletions are detected. Only whitelisted fields are stored, never secrets.
