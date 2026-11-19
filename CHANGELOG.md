@@ -4,6 +4,8 @@ All notable changes are recorded here. The format follows [Keep a Changelog](htt
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-19
+
 ### Added
 - Connector layer with stable provider and connector interfaces (`connectors/`).
 - Tailscale discovery through the local API socket. It needs no CLI and makes no network calls.
