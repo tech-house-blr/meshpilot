@@ -39,18 +39,19 @@ cd meshpilot
 python3 -m venv venv
 ./venv/bin/pip install -r requirements.txt
 ./venv/bin/python set_password.py     # creates config.json and sets the admin password
-./venv/bin/python app.py              # listens on port 8080
+./venv/bin/python app.py              # listens on 127.0.0.1:8080
 ```
 
-Then open `http://<host>:8080` and sign in.
+Then open `http://127.0.0.1:8080` and sign in. To reach it from other devices, set
+`MESHPILOT_HOST` (and optionally `MESHPILOT_PORT`), or put it behind `tailscale serve`.
 
 ## Security notes
 
 Mesh Pilot can read and delete files, stop processes and services, and power off the machine it
 runs on, behind a single admin password. Run it only inside your private network (for example
 behind `tailscale serve`), use a strong password, and keep `config.json`, `vault.key` and
-`audit.log` private; they are git-ignored. It listens on all interfaces by default, so firewall it
-accordingly. Report vulnerabilities as described in [SECURITY.md](SECURITY.md).
+`audit.log` private; they are git-ignored. It listens on loopback only by default; if you set
+`MESHPILOT_HOST=0.0.0.0`, firewall it accordingly. Report vulnerabilities as described in [SECURITY.md](SECURITY.md).
 
 ## Contributing
 

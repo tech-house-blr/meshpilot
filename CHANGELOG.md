@@ -4,6 +4,9 @@ All notable changes are recorded here. The format follows [Keep a Changelog](htt
 
 ## [Unreleased]
 
+### Changed
+- `python app.py` now listens on `127.0.0.1` by default. Set `MESHPILOT_HOST` and `MESHPILOT_PORT` to change it. Breaking for anyone who relied on the old `0.0.0.0` default.
+
 ### Added
 - README rewritten for public release, plus SECURITY.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, issue templates and a pull request template.
 
