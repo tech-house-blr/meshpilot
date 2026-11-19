@@ -11,4 +11,4 @@ if len(pw) < 8:
 conf["password_hash"] = generate_password_hash(pw)
 json.dump(conf, open(path, "w"))
 os.chmod(path, 0o600)
-print("Password set. Restart the service: sudo systemctl restart pi-monitor")
+print("Password set. Restart the service: sudo systemctl restart meshpilot")
