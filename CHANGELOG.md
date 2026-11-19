@@ -4,6 +4,9 @@ All notable changes are recorded here. The format follows [Keep a Changelog](htt
 
 ## [Unreleased]
 
+### Added
+- Encrypted credential vault (`credvault.py`): AES-256-GCM, key in `vault.key` (0600), versioned file format with automatic migration on open.
+
 ## [0.2.0] - 2026-11-19
 
 ### Changed
