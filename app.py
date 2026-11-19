@@ -73,7 +73,7 @@ def api(f):
     def w(*a, **k):
         if not session.get("auth"):
             return jsonify(error="auth"), 401
-        if request.method == "POST" and request.headers.get("X-Requested-With") != "PiMonitor":
+        if request.method == "POST" and request.headers.get("X-Requested-With") != "MeshPilot":
             return jsonify(error="bad request"), 400
         return f(*a, **k)
     return w
@@ -395,7 +395,7 @@ def service_action():
     unit, act = d.get("unit", ""), d.get("action")
     if not UNIT_RE.match(unit) or act not in ("start", "stop", "restart", "enable", "disable"):
         return jsonify(error="invalid"), 400
-    if unit.startswith("pi-monitor") and act in ("stop", "disable"):
+    if unit.startswith(("pi-monitor", "meshpilot")) and act in ("stop", "disable"):
         return jsonify(error="refusing to stop the monitor itself"), 400
     return jsonify(ok=True, output=sh(["sudo", "-n", "systemctl", act, unit], 30))
 
@@ -803,8 +803,8 @@ def desktop_ws(ws):
 @app.route("/manifest.webmanifest")
 def manifest():
     return jsonify(
-        name="Pi Monitor", short_name="Pi Monitor", start_url="/", scope="/", display="standalone",
-        background_color="#1c1f24", theme_color="#1c1f24", description="System monitor and admin console for a Raspberry Pi.",
+        name="Mesh Pilot", short_name="Mesh Pilot", start_url="/", scope="/", display="standalone",
+        background_color="#1c1f24", theme_color="#1c1f24", description="Admin console for your machines.",
         icons=[dict(src="/static/icons/icon-192.png", sizes="192x192", type="image/png"),
                dict(src="/static/icons/icon-512.png", sizes="512x512", type="image/png"),
                dict(src="/static/icons/maskable-512.png", sizes="512x512", type="image/png", purpose="maskable")]

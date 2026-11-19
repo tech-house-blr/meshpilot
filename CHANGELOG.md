@@ -4,6 +4,13 @@ All notable changes are recorded here. The format follows [Keep a Changelog](htt
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-19
+
+### Changed
+- The UI, login page, web app manifest and password script now say Mesh Pilot instead of Pi Monitor.
+- The request header that guards state-changing calls is now `X-Requested-With: MeshPilot`.
+- The service-control page also refuses to stop or disable a `meshpilot` unit.
+
 ## [0.1.0] - 2026-11-19
 
 ### Added

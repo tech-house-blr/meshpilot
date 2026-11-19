@@ -230,7 +230,7 @@ P.files = () => {
       x.upload.onprogress = e => { if (e.lengthComputable) { bar.style.transform = `scaleX(${e.loaded / e.total})`; tx.textContent = `Uploading ${B(e.loaded)} of ${B(e.total)}` } };
       x.onload = () => { pr.hidden = true; let r = {}; try { r = JSON.parse(x.responseText) } catch (e) { r = {ok: false, error: x.status == 413 ? 'File too large' : 'Upload failed'} } res(r) };
       x.onerror = () => { pr.hidden = true; res({ok: false, error: 'Upload failed'}) };
-      x.open('POST', '/api/fs/upload'); x.setRequestHeader('X-Requested-With', 'PiMonitor'); x.send(fd);
+      x.open('POST', '/api/fs/upload'); x.setRequestHeader('X-Requested-With', 'MeshPilot'); x.send(fd);
     });
   }
   async function doUpload(files, dest) {
