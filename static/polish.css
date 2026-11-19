@@ -1,0 +1,76 @@
+/* Visual refinement layer: depth, buttons, tables, chips. Loaded last. Colour tokens stay in tokens.css. */
+:root { --sh-1: 0 1px 0 oklch(100% 0 0 / 0.03) inset, 0 1px 2px oklch(0% 0 0 / 0.35); --sh-2: 0 1px 0 oklch(100% 0 0 / 0.05) inset, 0 8px 24px -8px oklch(0% 0 0 / 0.55); --hi: oklch(100% 0 0 / 0.045); }
+body { background: radial-gradient(1200px 500px at 70% -10%, oklch(24% 0.02 250 / 0.55), transparent 70%), var(--color-paper-3); background-attachment: fixed; }
+
+/* surfaces */
+.surface, .panel { background: linear-gradient(180deg, color-mix(in oklab, var(--color-paper-2) 100%, var(--hi)), var(--color-paper-2)); border-color: color-mix(in oklab, var(--color-rule) 85%, transparent); box-shadow: var(--sh-1); border-radius: 12px; }
+.surface > .head, .tools { background: color-mix(in oklab, var(--color-paper-2) 70%, var(--color-paper-3)); }
+.surface > .head h2 { font-weight: 600; letter-spacing: -0.01em; }
+.page > header h1, .page h1 { letter-spacing: -0.035em; font-weight: 600; }
+
+/* buttons */
+.btn { border-radius: 8px; font-weight: 500; letter-spacing: 0; background: linear-gradient(180deg, color-mix(in oklab, var(--color-paper-2) 88%, white), var(--color-paper-2)); border-color: var(--color-rule-2); box-shadow: var(--sh-1); }
+.btn:hover:not([disabled]) { background: linear-gradient(180deg, color-mix(in oklab, var(--color-paper-2) 80%, white), color-mix(in oklab, var(--color-paper-2) 94%, white)); border-color: var(--color-muted); }
+.btn.primary { background: linear-gradient(180deg, color-mix(in oklab, var(--color-accent) 92%, white), var(--color-accent)); border-color: color-mix(in oklab, var(--color-accent) 80%, black); box-shadow: 0 1px 0 oklch(100% 0 0 / 0.35) inset, 0 4px 14px -4px color-mix(in oklab, var(--color-accent) 55%, transparent); font-weight: 600; }
+.btn.primary:hover:not([disabled]) { background: linear-gradient(180deg, color-mix(in oklab, var(--color-accent) 85%, white), color-mix(in oklab, var(--color-accent) 96%, white)); }
+.btn.bad, .btn.danger { background: color-mix(in oklab, var(--color-bad-soft) 55%, var(--color-paper-2)); border-color: color-mix(in oklab, var(--color-bad) 40%, var(--color-rule-2)); }
+.btn.bad:hover:not([disabled]), .btn.danger:hover:not([disabled]) { background: color-mix(in oklab, var(--color-bad) 22%, var(--color-paper-2)); border-color: var(--color-bad); color: var(--color-ink); }
+.btn.s { border-radius: 7px; }
+.seg { border-radius: 9px; background: var(--color-paper-3); padding: 2px; gap: 2px; border-color: var(--color-rule); }
+.seg button { border: 0; border-radius: 7px; }
+.seg button[aria-checked="true"] { background: var(--color-paper-2); color: var(--color-ink); box-shadow: 0 1px 0 var(--hi) inset, 0 1px 3px oklch(0% 0 0 / 0.5), 0 0 0 1px var(--color-rule-2); }
+
+/* inputs */
+input, select, textarea { border-radius: 8px; background: var(--color-paper-3); border-color: var(--color-rule); box-shadow: 0 1px 2px oklch(0% 0 0 / 0.35) inset; }
+input:hover, select:hover { border-color: var(--color-rule-2); }
+input:focus-visible, select:focus-visible { border-color: var(--color-accent); outline: none; box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-accent) 24%, transparent); }
+
+/* sidebar */
+.side a { border-radius: 8px; }
+.side a:hover { background: color-mix(in oklab, var(--color-paper-2) 85%, white); }
+.side a[aria-current="page"] { background: linear-gradient(90deg, var(--color-accent-soft), color-mix(in oklab, var(--color-accent-soft) 40%, transparent)); box-shadow: inset 2px 0 0 var(--color-accent); }
+
+/* tables */
+th { background: color-mix(in oklab, var(--color-paper-2) 70%, var(--color-paper-3)); font-weight: 600; border-bottom-color: var(--color-rule-2); }
+tbody tr { transition: background-color 160ms var(--mo); }
+@media (hover: hover) { tbody tr:hover td { background: color-mix(in oklab, var(--color-paper-2) 82%, white); } }
+td { border-bottom-color: color-mix(in oklab, var(--color-rule) 60%, transparent); }
+.th { border-radius: 5px; } .th:hover { color: var(--color-ink); }
+th[aria-sort="ascending"] .th::after { content: " \2191"; color: var(--color-accent); } th[aria-sort="descending"] .th::after { content: " \2193"; color: var(--color-accent); }
+th[aria-sort="ascending"], th[aria-sort="descending"] { color: var(--color-ink); }
+
+/* chips */
+.chip { display: inline-flex; align-items: center; min-height: 22px; padding: 0 9px; border-radius: 999px; font-size: var(--text-xs); font-weight: 500; background: var(--color-paper-3); border: 1px solid var(--color-rule); color: var(--color-ink-2); }
+.chip.st-running { background: var(--color-ok-soft); border-color: color-mix(in oklab, var(--color-ok) 40%, transparent); color: var(--color-ok); }
+.chip.st-zombie, .chip.st-dead, .chip.st-stopped { background: var(--color-bad-soft); border-color: color-mix(in oklab, var(--color-bad) 40%, transparent); color: var(--color-bad); }
+.cbar { display: inline-block; width: 36px; height: 4px; margin-right: 8px; border-radius: 3px; vertical-align: middle; background: linear-gradient(90deg, var(--color-accent) var(--v), var(--color-rule) var(--v)); }
+
+/* dialogs and toast */
+dialog { border-radius: 14px; box-shadow: var(--sh-2); border-color: var(--color-rule-2); }
+dialog::backdrop { backdrop-filter: blur(4px); background: oklch(10% 0.01 250 / 0.55); }
+.toast { box-shadow: var(--sh-2); border-radius: 12px; }
+
+/* Processes: fit the viewport, no horizontal scroll. Command truncates, full text in tooltip. */
+@media (min-width: 60.01rem) {
+  .ptable { table-layout: fixed; width: 100%; }
+  .ptable th, .ptable td { overflow: hidden; text-overflow: ellipsis; padding-inline: var(--space-sm); }
+  .ptable th:nth-child(1) { width: 44px; } .ptable th:nth-child(2) { width: 72px; } .ptable th:nth-child(3) { width: 17%; }
+  .ptable th:nth-child(4) { width: 80px; } .ptable th:nth-child(5) { width: 96px; } .ptable th:nth-child(6) { width: 104px; }
+  .ptable th:nth-child(7) { width: 96px; } .ptable th:nth-child(9) { width: 188px; }
+  .ptable td.cmdc { white-space: nowrap; min-width: 0; } .ptable td.pact { overflow: visible; padding-inline: var(--space-xs); }
+  #live.tw { overflow-x: hidden; }
+}
+@media (max-width: 60rem) { .cmdc { white-space: normal; overflow-wrap: anywhere; } }
+/* panels grouped inside a shared outline keep square joins */
+.panels > .panel, .panels > .stackc > .panel, .panels > .stackc { border-radius: 0; box-shadow: none; }
+.panels { border-radius: 12px; overflow: hidden; }
+.ptable td:first-child { line-height: 0; } .pin { vertical-align: middle; }
+.chip.st-sleeping, .chip.st-idle { background: transparent; border-color: transparent; color: var(--color-muted); padding-left: 0; }
+@media (min-width: 60.01rem) { .ptable td:first-child, .ptable th:first-child { padding-inline: 8px; overflow: visible; text-overflow: clip; } }
+
+/* updates */
+.uprog { padding: var(--space-sm) var(--space-md); border-bottom: 1px solid var(--color-rule); display: grid; gap: var(--space-xs); }
+.uprog-bar { height: 6px; border-radius: 4px; background: var(--color-rule); overflow: hidden; }
+.uprog-bar i { display: block; height: 100%; width: 100%; transform-origin: left; transform: scaleX(0); background: var(--color-accent); transition: transform 600ms var(--mo); }
+#ujob { position: relative; } .ujump { position: absolute; right: var(--space-md); bottom: var(--space-md); }
+#ul { max-height: 380px; overflow: auto; }

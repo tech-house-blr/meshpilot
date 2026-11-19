@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pi Monitor, log in</title>
+<meta name="description" content="Log in to the Pi Monitor admin console.">
+<link rel="stylesheet" href="/static/app.css">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+</head><body class="loginpage">
+<main class="login">
+  <h1>Pi Monitor</h1>
+  <p class="muted">Administrator log in</p>
+  <form method="post">
+    <label for="pw">Password</label>
+    <input id="pw" type="password" name="password" autocomplete="current-password" required autofocus>
+    <div class="err" role="alert">{% if err %}{{ err }}{% endif %}</div>
+    <button class="btn primary" type="submit">Log in</button>
+  </form>
+</main>
+</body></html>

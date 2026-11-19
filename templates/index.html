@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pi Monitor</title>
+<meta name="description" content="System monitor and admin console for a Raspberry Pi.">
+<meta name="theme-color" content="#1c1f24">
+<script src="/static/theme.js"></script>
+<link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/motion.css">
+<link rel="stylesheet" href="/static/rules.css">
+<link rel="stylesheet" href="/static/polish.css">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pi Monitor">
+</head><body>
+<header class="top">
+  <button class="tog" id="tog" type="button" aria-label="Toggle sidebar" aria-expanded="true" aria-controls="side" title="Toggle sidebar"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></svg></button>
+  <a class="brand" href="#dashboard" aria-label="Pi Monitor home">Pi Monitor</a>
+  <span class="host m" id="hn"></span>
+  <span class="grow"></span>
+  <span class="m muted" id="clock"></span>
+  <button class="btn s" id="jump" type="button">Jump to&nbsp;&nbsp;<span class="m muted">Ctrl K</span></button>
+  <a class="btn s" href="/logout">Log out</a>
+</header>
+<div class="wrap">
+<nav class="side" id="side" aria-label="Main">
+  <p class="grp">System</p>
+  <a href="#dashboard" data-p="dashboard" title="Dashboard"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg><span class="lb">Dashboard</span></a>
+  <a href="#processes" data-p="processes" title="Processes"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg><span class="lb">Processes</span></a>
+  <a href="#services" data-p="services" title="Services"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg><span class="lb">Services</span></a>
+  <a href="#updates" data-p="updates" title="Updates"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 19h16"/></svg><span class="lb">Updates</span></a>
+  <a href="#logs" data-p="logs" title="Logs"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg><span class="lb">Logs</span></a>
+  <p class="grp">Hardware</p>
+  <a href="#storage" data-p="storage" title="Storage"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg><span class="lb">Storage</span></a>
+  <a href="#files" data-p="files" title="Files"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="lb">Files</span></a>
+  <a href="#network" data-p="network" title="Network"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2.5"/><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="19" r="2.5"/><path d="M12 7.5v4M12 11.5l-6 5.5M12 11.5l6 5.5"/></svg><span class="lb">Network</span></a>
+  <p class="grp">Access</p>
+  <a href="#desktop" data-p="desktop" title="Desktop"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg><span class="lb">Desktop</span></a>
+  <a href="#users" data-p="users" title="Users"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg><span class="lb">Users</span></a>
+  <a href="#power" data-p="power" title="Power"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v9"/><path d="M6.3 6.8a8 8 0 1 0 11.4 0"/></svg><span class="lb">Power</span></a>
+<a href="#settings" data-p="settings" title="Settings"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg><span class="lb">Settings</span></a>
+</nav>
+<main id="main"></main>
+<nav class="tabs" aria-label="Quick navigation">
+  <a href="#dashboard" data-p="dashboard"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg><span>Dashboard</span></a>
+  <a href="#processes" data-p="processes"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg><span>Processes</span></a>
+  <a href="#files" data-p="files"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>Files</span></a>
+  <a href="#desktop" data-p="desktop"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg><span>Desktop</span></a>
+  <button type="button" id="tabmore" aria-expanded="false" aria-controls="side"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>More</span></button>
+</nav>
+
+</div>
+<div class="toast" id="toast" role="status"></div>
+<dialog id="dlg"><form method="dialog"><p id="dmsg"></p><input id="dinp" autocomplete="off" aria-label="Confirmation" hidden><div class="acts"><button class="btn" value="no" type="submit">Cancel</button><button class="btn primary" id="dok" value="yes" type="submit">Confirm</button></div></form></dialog>
+<script>
+const $ = s => document.querySelector(s), main = $('#main');
+const B = n => { n = +n || 0; const u = ['B','KB','MB','GB','TB']; let i = 0; while (n >= 1024 && i < 4) { n /= 1024; i++ } return n.toFixed(i ? 1 : 0) + ' ' + u[i] };
+const T = s => { const d = Math.floor(s/86400), h = Math.floor(s%86400/3600), m = Math.floor(s%3600/60); return (d ? d + 'd ' : '') + h + 'h ' + m + 'm' };
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const meter = (p, hot = 85) => `<div class="meter ${p > hot ? 'hot' : ''}"><i style="transform:scaleX(${Math.max(0, Math.min(p, 100)) / 100})"></i></div>`;
+const dl = rows => `<dl class="facts">${rows.map(([a, b]) => `<dt>${a}</dt><dd class="m">${b}</dd>`).join('')}</dl>`;
+const skel = n => Array.from({length: n}, () => '<div class="skel"></div>').join('');
+const chip = (t, c = '') => `<span class="chip ${c}">${esc(t)}</span>`;
+function toastAct(m, label, fn, ms = 9000) { const t = $('#toast'); t.textContent = m + ' '; const b = document.createElement('button'); b.type = 'button'; b.className = 'btn s tact'; b.textContent = label; b.onclick = async () => { t.style.display = 'none'; clearTimeout(t._t); await fn() }; t.appendChild(b); t.style.display = 'block'; clearTimeout(t._t); t._t = setTimeout(() => t.style.display = 'none', ms) }
+function toast(m) { const t = $('#toast'); t.textContent = m; t.style.display = 'block'; clearTimeout(t._t); t._t = setTimeout(() => t.style.display = 'none', 3500) }
+async function get(u) { const r = await fetch(u); if (r.status == 401) { location = '/login'; throw 0 } if (!r.ok) throw new Error(r.status); return r.json() }
+async function post(u, d) { const r = await fetch(u, {method: 'POST', headers: {'Content-Type': 'application/json', 'X-Requested-With': 'PiMonitor'}, body: JSON.stringify(d)}); if (r.status == 401) { location = '/login'; throw 0 } return r.json() }
+function ask(msg, word) {
+  return new Promise(res => {
+    const d = $('#dlg'), i = $('#dinp'), ok = $('#dok');
+    $('#dmsg').textContent = msg; i.hidden = !word; i.value = ''; i.placeholder = word ? 'Type ' + word : '';
+    ok.disabled = !!word; i.oninput = () => ok.disabled = i.value !== word;
+    d.onclose = () => res(d.returnValue === 'yes'); d.returnValue = 'no'; d.showModal(); if (word) i.focus();
+  });
+}
+const errbox = e => `<div class="errbox">Could not load this data (${esc(e.message || e)}). The service may be busy; it retries automatically.</div>`;
+
+let timers = [], page = null;
+function every(fn, ms) { const run = async () => { try { await fn() } catch (e) { if (e !== 0) { const t = $('#live'); if (t) t.innerHTML = errbox(e) } } }; run(); timers.push(setInterval(run, ms)) }
+function nav() {
+  const p = location.hash.slice(1); page = P[p] ? p : 'dashboard'; timers.forEach(clearInterval); timers = [];
+  document.querySelectorAll('#side a').forEach(a => a.removeAttribute('aria-current'));
+  document.querySelectorAll('#side a').forEach(a => { if (a.dataset.p == page) a.setAttribute('aria-current', 'page') });
+  $('#side').classList.remove('open'); if (mob()) $('#tog').setAttribute('aria-expanded', false); main.scrollTop = 0; P[page]();
+}
+const mob = () => matchMedia('(max-width: 60rem)').matches;
+const setColl = c => { document.body.classList.toggle('rail', c); $('#tog').setAttribute('aria-expanded', !c); localStorage.setItem('pm_rail', c ? 1 : 0); setTimeout(() => dispatchEvent(new Event('resize')), 260) };
+$('#tog').onclick = () => { if (mob()) { const o = $('#side').classList.toggle('open'); $('#tog').setAttribute('aria-expanded', o) } else setColl(!document.body.classList.contains('rail')) };
+if (localStorage.getItem('pm_rail') == 1) setColl(true); if (mob()) $('#tog').setAttribute('aria-expanded', false);
+addEventListener('hashchange', nav);
+const head = (t, extra = '') => `<header><h1>${t}</h1>${extra}</header>`;
+const P = {};
+
+/* services */
+P.services = () => {
+  main.innerHTML = `<div class="page">${head('Services')}<div class="surface"><div class="tools"><input id="q" placeholder="Filter services" size="28" aria-label="Filter services"><select id="f" aria-label="State"><option value="">All states</option><option value="active">Running</option><option value="failed">Failed</option><option value="inactive">Stopped</option></select></div><div class="tw" id="live"><div class="loading">${skel(6)}</div></div></div></div>`;
+  let data = [];
+  const draw = () => { const q = $('#q').value.toLowerCase(), f = $('#f').value; const rows = data.filter(x => (!q || (x.unit + ' ' + x.desc).toLowerCase().includes(q)) && (!f || x.active == f));
+    $('#live').innerHTML = rows.length ? `<table class="stack"><thead><tr><th>Service</th><th>Description</th><th>State</th><th>At boot</th><th></th></tr></thead><tbody>${rows.map(x => { const u = esc(x.unit); return `<tr><td class="m unit" data-l="Service">${u}</td><td class="muted wrapc" data-l="Description">${esc(x.desc)}</td><td data-l="State">${chip(x.active + ', ' + x.sub, x.active == 'active' ? 'ok' : x.active == 'failed' ? 'bad' : '')}</td><td class="muted" data-l="At boot">${esc(x.enabled)}</td><td><div class="acts">${x.active == 'active' ? `<button class="btn s" type="button" data-u="${u}" data-a="restart">Restart</button><button class="btn s bad" type="button" data-u="${u}" data-a="stop">Stop</button>` : `<button class="btn s" type="button" data-u="${u}" data-a="start">Start</button>`}<button class="btn s" type="button" data-u="${u}" data-a="${x.enabled == 'enabled' ? 'disable' : 'enable'}">${x.enabled == 'enabled' ? 'Disable' : 'Enable'}</button></div></td></tr>` }).join('')}</tbody></table>` : '<div class="empty">No service matches. Clear the filter or choose all states.</div>' };
+  const reload = async () => { data = (await get('/api/services')).services; draw() };
+  $('#q').oninput = draw; $('#f').onchange = draw;
+  $('#main').onclick = async e => { const b = e.target.closest('[data-u]'); if (!b) return; const {u, a} = b.dataset; if (['stop', 'disable', 'restart'].includes(a) && !await ask(`${a[0].toUpperCase() + a.slice(1)} ${u}?`)) return; const r = await post('/api/services/action', {unit: u, action: a}); toast(r.ok ? `${a} ${u}: done` : 'Failed: ' + r.error); setTimeout(() => reload().catch(() => {}), 800) };
+  every(async () => { if (document.activeElement && document.activeElement.tagName == 'INPUT') return; await reload() }, 8000);
+};
+
+/* updates */
+/* logs */
+P.logs = () => {
+  const h = new URLSearchParams(location.search);
+  main.innerHTML = `<div class="page">${head('Logs')}<div class="surface"><div class="tools"><input id="u" placeholder="Unit, for example ssh.service" size="28" aria-label="Unit"><select id="p" aria-label="Priority"><option value="">All priorities</option><option value="3">Errors and worse</option><option value="4">Warnings and worse</option><option value="6">Info and worse</option></select><select id="n" aria-label="Lines"><option>200</option><option>500</option><option>1000</option></select><label class="chk"><input type="checkbox" id="b"> This boot only</label><button class="btn primary" type="button" id="go">Refresh</button></div><div id="live"><pre class="log">Loading journal...</pre></div></div></div>`;
+  const load = async () => { try { const q = new URLSearchParams({unit: $('#u').value.trim(), priority: $('#p').value, n: $('#n').value, boot: $('#b').checked ? 1 : 0}); const r = await get('/api/logs?' + q); $('#live').innerHTML = r.log ? `<pre class="log" id="lg">${esc(r.log)}</pre>` : '<div class="empty">No journal entries for this filter. Remove the unit or widen the priority.</div>'; const l = $('#lg'); if (l) l.scrollTop = l.scrollHeight } catch (e) { if (e !== 0) $('#live').innerHTML = errbox(e) } };
+  $('#go').onclick = load; $('#u').onkeydown = e => { if (e.key == 'Enter') load() }; load();
+};
+
+/* storage */
+P.storage = async () => {
+  main.innerHTML = `<div class="page">${head('Storage')}<div id="live">${skel(5)}</div></div>`;
+  try {
+    const s = await get('/api/storage');
+    const rows = (d, l = 0) => d.map(x => `<tr><td style="padding-left:${16 + l * 18}px" class="m" data-l="Device">${esc(x.name)}</td><td data-l="Type">${esc(x.type)}</td><td class="m" data-l="Size">${B(x.size)}</td><td data-l="File system">${esc(x.fstype || '')}</td><td class="m" data-l="Mount">${esc(x.mountpoint || '')}</td><td class="muted" data-l="Model">${esc([x.model, x.tran, x.label].filter(Boolean).join(', '))}</td></tr>` + rows(x.children || [], l + 1)).join('');
+    const io = Object.entries(s.io).filter(([k]) => !/^(loop|ram)/.test(k));
+    $('#live').innerHTML = `<div class="surface"><div class="head"><h2>Devices</h2></div><div class="tw"><table class="stack"><thead><tr><th>Device</th><th>Type</th><th>Size</th><th>File system</th><th>Mount</th><th>Model</th></tr></thead><tbody>${rows(s.devices)}</tbody></table></div></div>
+    <div class="surface"><div class="head"><h2>File systems</h2></div>${s.fs.map(d => `<div class="fs"><div class="t"><span>${esc(d.mount)} <span class="muted m">${esc(d.dev)}</span> <span class="muted m">${esc(d.fs)}</span></span><span class="m">${B(d.used)} of ${B(d.total)}, ${d.percent}%</span></div>${meter(d.percent)}</div>`).join('') || '<div class="empty">No mounted file systems found.</div>'}</div>
+    <div class="surface"><div class="head"><h2>Disk I/O since boot</h2></div>${io.length ? `<div class="tw short"><table class="stack"><thead><tr><th>Disk</th><th class="r">Read</th><th class="r">Written</th><th class="r">Read operations</th><th class="r">Write operations</th></tr></thead><tbody>${io.map(([k, v]) => `<tr><td class="m" data-l="Disk">${esc(k)}</td><td class="r m" data-l="Read">${B(v.read_bytes)}</td><td class="r m" data-l="Written">${B(v.write_bytes)}</td><td class="r m" data-l="Read ops">${v.read_count}</td><td class="r m" data-l="Write ops">${v.write_count}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">No disk counters reported.</div>'}</div>`;
+  } catch (e) { if (e !== 0) $('#live').innerHTML = errbox(e) }
+};
+
+/* network */
+P.network = async () => {
+  main.innerHTML = `<div class="page">${head('Network')}<div id="live">${skel(4)}</div></div>`;
+  try {
+    const n = await get('/api/network');
+    $('#live').innerHTML = `<div class="panels cols-2"><div class="panel"><h2>Routing</h2>${dl([['Default gateway', esc(n.gw || 'none')], ['DNS servers', esc((n.dns || 'none').replace(/\n/g, ', '))]])}</div><div class="panel"><h2>Interfaces</h2><div class="reading">${n.ifaces.filter(i => i.up).length}<small>of ${n.ifaces.length} up</small></div></div></div>` +
+      n.ifaces.map(i => `<div class="surface"><div class="head"><h2 class="m">${esc(i.name)}</h2>${chip(i.up ? 'up' : 'down', i.up ? 'ok' : '')}</div><div class="body">${dl([['IPv4', esc(i.ipv4.join(', ') || 'none')], ['IPv6', esc(i.ipv6.join(', ') || 'none')], ['MAC', esc(i.mac || 'none')], ['Link speed', i.speed ? i.speed + ' Mb/s' : 'unknown'], ['MTU', i.mtu], ['Received', B(i.rx)], ['Sent', B(i.tx)]])}</div></div>`).join('');
+  } catch (e) { if (e !== 0) $('#live').innerHTML = errbox(e) }
+};
+
+/* users */
+P.users = async () => {
+  main.innerHTML = `<div class="page">${head('Users')}<div id="live">${skel(4)}</div></div>`;
+  try {
+    const u = await get('/api/users');
+    $('#live').innerHTML = `<div class="surface"><div class="head"><h2>Accounts</h2></div><div class="tw short"><table class="stack"><thead><tr><th>Name</th><th>UID</th><th>GID</th><th>Home</th><th>Shell</th></tr></thead><tbody>${u.users.map(x => `<tr><td data-l="Name">${esc(x.name)}</td><td class="m" data-l="UID">${x.uid}</td><td class="m" data-l="GID">${x.gid}</td><td class="m" data-l="Home">${esc(x.home)}</td><td class="m" data-l="Shell">${esc(x.shell)}</td></tr>`).join('')}</tbody></table></div></div>
+    <div class="surface"><div class="head"><h2>Logged-in sessions</h2></div>${u.sessions.length ? `<div class="tw short"><table class="stack"><thead><tr><th>User</th><th>Terminal</th><th>From</th><th>Since</th></tr></thead><tbody>${u.sessions.map(x => `<tr><td data-l="User">${esc(x.name)}</td><td class="m" data-l="Terminal">${esc(x.terminal)}</td><td class="m" data-l="From">${esc(x.host)}</td><td class="m" data-l="Since">${esc(x.started)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty">No interactive sessions are logged in.</div>'}</div>`;
+  } catch (e) { if (e !== 0) $('#live').innerHTML = errbox(e) }
+};
+
+/* power */
+P.power = () => {
+  main.innerHTML = `<div class="page">${head('Power')}<div class="surface"><div class="head"><h2>Reboot or shut down</h2></div><div class="body"><p class="ink2" style="margin-bottom:var(--space-md)">A shutdown needs physical access to start the Pi again. The console is unavailable until it is back.</p><div class="acts"><button class="btn" type="button" id="rb">Reboot</button><button class="btn bad" type="button" id="po">Shut down</button></div></div></div></div>`;
+  $('#rb').onclick = async () => { if (await ask('Reboot the Pi now?')) { const r = await post('/api/power', {action: 'reboot'}); toast(r.ok ? 'Rebooting' : 'Failed: ' + r.error) } };
+  $('#po').onclick = async () => { if (await ask('Shut the Pi down now? Someone must power it on again.', 'SHUTDOWN')) { const r = await post('/api/power', {action: 'poweroff'}); toast(r.ok ? 'Shutting down' : 'Failed: ' + r.error) } };
+};
+
+</script>
+<script src="/static/pages.js"></script>
+<script src="/static/files.js"></script>
+<script src="/static/processes.js"></script>
+<script src="/static/updates.js"></script>
+<script src="/static/desktop.js"></script>
+<script src="/static/dashboard.js"></script>
+<script src="/static/ux.js"></script>
+</body></html>
