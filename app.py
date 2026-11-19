@@ -2,6 +2,7 @@ import glob, json, os, platform, re, subprocess, threading, time
 from functools import wraps
 
 import psutil
+import connectors
 from flask import Flask, jsonify, render_template, send_file, request, session, redirect, url_for, abort
 from werkzeug.security import check_password_hash
 
@@ -821,6 +822,27 @@ def service_worker():
 @app.route("/favicon.ico")
 def favicon():
     return send_file(os.path.join(BASE, "static", "favicon.svg"), mimetype="image/svg+xml", max_age=86400)
+
+
+# ---------- machines (mesh discovery) ----------
+@app.route("/api/machines")
+@api
+def machines_list():
+    ms, errs = connectors.machines(force=request.args.get("force") == "1")
+    return jsonify(machines=[m.public() for m in ms], errors=errs)
+
+
+@app.route("/api/machines/probe", methods=["POST"])
+@api
+def machines_probe():
+    m = connectors.find((request.get_json(force=True) or {}).get("id"))
+    if not m:
+        return jsonify(error="unknown machine"), 404
+    if not m.owned:
+        return jsonify(error="This machine belongs to another account, so it is view only."), 403
+    if not m.online:
+        return jsonify(error="This machine is offline."), 409
+    return jsonify(ports=connectors.probe(m))
 
 
 if __name__ == "__main__":

@@ -214,7 +214,7 @@ P.dashboard = () => {
   const dlg = document.createElement('dialog'); dlg.id = 'pal'; dlg.setAttribute('aria-label', 'Jump to');
   dlg.innerHTML = '<input id="pq" autocomplete="off" placeholder="Jump to a page or run an action" aria-label="Jump to"><ul id="pl" role="listbox"></ul>';
   document.body.appendChild(dlg);
-  const pages = ['dashboard', 'processes', 'services', 'updates', 'logs', 'storage', 'files', 'network', 'users', 'power', 'settings'];
+  const pages = ['dashboard', 'machines', 'processes', 'services', 'updates', 'logs', 'storage', 'files', 'network', 'users', 'power', 'settings'];
   const cmds = [...pages.map(p => ({n: 'Go to ' + p[0].toUpperCase() + p.slice(1), f: () => { location.hash = p }})),
     {n: 'Check for updates', f: async () => { const r = await post('/api/updates/run', {action: 'refresh'}); toast(r.ok ? 'Started' : 'Failed: ' + r.error); location.hash = 'updates' }},
     {n: 'Log out', f: () => { location = '/logout' }}];
