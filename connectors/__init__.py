@@ -3,6 +3,7 @@ import time
 
 from .base import CONNECTOR_API, Machine, Provider, Connector, PROBE_PORTS, tcp_open
 from .tailscale import TailscaleProvider
+from . import capabilities
 
 PROVIDERS = [TailscaleProvider()]
 _cache = {"t": 0, "machines": [], "errors": {}}
@@ -25,8 +26,5 @@ def find(machine_id):
 
 
 def probe(machine):
-    """On-demand TCP probe. Only for machines the signed-in user owns and that are online."""
-    if not (machine.owned and machine.online and machine.addresses):
-        return None
-    host = next((a for a in machine.addresses if "." in a), machine.addresses[0])
-    return {name: tcp_open(host, port) for name, port in PROBE_PORTS.items()}
+    """Scan what a machine supports and remember it. Authorization is checked by the caller (see authz.py)."""
+    return capabilities.scan(machine)
