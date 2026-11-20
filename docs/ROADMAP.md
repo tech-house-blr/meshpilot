@@ -9,13 +9,14 @@ Each release ships as a git tag `vX.Y.Z` with a GitHub release and a [CHANGELOG]
 | 0.1.0 | Foundation | Pi Monitor baseline imported, connector interfaces, Tailscale discovery, Machines page, view-only rule for other people's devices |
 | 0.2.0 | Identity | Mesh Pilot branding in the UI, manifest and docs |
 | 0.3.0 | Trust | Encrypted credential vault with versioned format and automatic migration; audit log |
-| 0.4.0 | Screens | VNC connector with the existing noVNC client, per-machine control |
-| 0.5.0 | Agent preview | Go agent (Linux), single static binary, signed releases, self-update with rollback |
-| 0.6.0 | Agent cross-platform | Windows and macOS agent builds |
-| 0.7.0 | Plugins | Android over ADB, RDP connector, versioned plugin API |
-| 1.0.0 | Stable | Threat model, SECURITY.md, stable config, vault and plugin formats, upgrade guarantees |
+| 0.4.0 | Control plane | Provider-independent resource model, capability records with state, evidence and expiry (replacing the single `controllable` flag and the port probe), per-operation authorization on the server, revocable sessions and cookie hardening, operation records carried through the audit log |
+| 0.5.0 | Screens | Agent with secure enrollment, per-device identity and revocation; Linux screen and input backend (RFB-compatible, so the existing noVNC client works unchanged); generic per-machine proxy that enforces authorization server-side; Connect button on each machine; audit entries; 'use my own VNC server' as an advanced fallback |
+| 0.6.0 | Agent cross-platform | Windows and macOS screen backends, signed releases, self-update with rollback |
+| 0.7.0 | Mobile | Android over ADB and a companion app, view-only iOS screen broadcast (Apple does not allow remote control of iPhones) |
+| 0.8.0 | Plugins | Plugin API with process isolation and a manifest, RDP connector |
+| 1.0.0 | Stable | Reviewed threat model (a first draft lives in `docs/THREAT_MODEL.md`), SECURITY.md, stable config, vault and plugin formats, upgrade guarantees |
 
-The order and contents of releases after the next one may change as the project learns what people need.
+Security and the resource model come before more reach: identity, authorization and trust boundaries are designed from the start, and later releases build on them. The order and contents of releases after the next one may change as the project learns what people need.
 
 ## Compatibility promises
 
