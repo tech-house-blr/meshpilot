@@ -8,6 +8,7 @@ All notable changes are recorded here. The format follows [Keep a Changelog](htt
 - `python app.py` now listens on `127.0.0.1` by default. Set `MESHPILOT_HOST` and `MESHPILOT_PORT` to change it. Breaking for anyone who relied on the old `0.0.0.0` default.
 
 ### Added
+- `agent/`: the core of the Mesh Pilot agent, a Go program that serves a machine's screen over RFB so the existing noVNC client works unchanged. It checks a token on every connection, handles pixel formats, resizing, pointer, keyboard and clipboard, and has pluggable screen and input backends. No real screen backend yet: `--demo` serves a synthetic screen.
 - README rewritten for public release, plus SECURITY.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, issue templates and a pull request template.
 
 ## [0.3.0] - 2026-11-19
