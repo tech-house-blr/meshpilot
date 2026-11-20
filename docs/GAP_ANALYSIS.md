@@ -35,7 +35,7 @@ Mesh Pilot started as a single-machine console (Pi Monitor) and still behaves li
 | 21 | Agent identity, enrollment, revocation, signed updates | partial | `agent/` (PR #11) | The agent checks a shared token (stored as a SHA-256). No per-device identity, no revocation, no mutual authentication, no signed updates. It is a prototype. |
 | 22 | Agent does not duplicate SSH | not applicable yet | `agent/` serves a screen only | Screen sharing is something SSH does not provide. Scope is fine for now. |
 | 23 | Plugin isolation | not applicable yet | none | No plugin system exists. The roadmap's plugin API must follow the isolation rules in the brief. |
-| 24 | Threat model | partial | `docs/THREAT_MODEL.md` (separate PR) | Was missing. First version written, not yet reviewed. |
+| 24 | Threat model | partial | `docs/THREAT_MODEL.md` | First version written, not yet reviewed. |
 | 25 | API versioning and contracts | missing | unversioned `/api/*` routes | No version prefix, no documented schema. |
 | 26 | Health, backup and recovery | partial | `/api/...` health data, `metrics.db` | Host metrics exist. No backup or restore guidance for `config.json`, `vault.*`, `audit.log` and `metrics.db`. |
 | 27 | Automated tests | partial | `tests/` (audit, vault, Tailscale parsing) | Good for the three modules covered. No tests for routes, authorization allow and deny, throttling, or the agent beyond its own package. |
