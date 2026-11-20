@@ -2,6 +2,7 @@ import glob, json, os, platform, re, subprocess, threading, time
 from functools import wraps
 
 import psutil
+import authz
 import connectors
 from audit import AuditLog
 from flask import Flask, jsonify, render_template, send_file, request, session, redirect, url_for, abort
@@ -860,24 +861,35 @@ def favicon():
 
 
 # ---------- machines (mesh discovery) ----------
+ACTOR = authz.Actor("admin", "admin")   # one admin account today; the check below already takes an actor
+
+
+def _caps_for(m):
+    out = []
+    for c in connectors.capabilities.cached(m.id):
+        d = c.public()
+        d["authorization"] = authz.decide(ACTOR, m, "use", c).public()
+        out.append(d)
+    return out
+
+
 @app.route("/api/machines")
 @api
 def machines_list():
     ms, errs = connectors.machines(force=request.args.get("force") == "1")
-    return jsonify(machines=[m.public() for m in ms], errors=errs)
+    return jsonify(machines=[dict(m.public(), capabilities=_caps_for(m)) for m in ms], errors=errs)
 
 
 @app.route("/api/machines/probe", methods=["POST"])
 @api
 def machines_probe():
     m = connectors.find((request.get_json(force=True) or {}).get("id"))
-    if not m:
-        return jsonify(error="unknown machine"), 404
-    if not m.owned:
-        return jsonify(error="This machine belongs to another account, so it is view only."), 403
-    if not m.online:
-        return jsonify(error="This machine is offline."), 409
-    return jsonify(ports=connectors.probe(m))
+    dec = authz.decide(ACTOR, m, "scan")
+    if not dec.allowed:
+        return jsonify(error=dec.reason, code=dec.code), dec.status
+    connectors.probe(m)
+    caps = _caps_for(m)
+    return jsonify(capabilities=caps, ports={c["protocol"]: c["state"] in ("detected", "available", "authenticated") for c in caps})
 
 
 if __name__ == "__main__":
