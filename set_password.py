@@ -11,4 +11,11 @@ if len(pw) < 8:
 conf["password_hash"] = generate_password_hash(pw)
 json.dump(conf, open(path, "w"))
 os.chmod(path, 0o600)
+# a new password ends every login that used the old one
+db = os.path.join(os.path.dirname(path), "sessions.db")
+if os.path.exists(db):
+    sys.path.insert(0, os.path.dirname(path))
+    from sessions import SessionStore
+    n = SessionStore(db).revoke_all()
+    print(f"Signed out {n} session{'s' if n != 1 else ''}.")
 print("Password set. Restart the service: sudo systemctl restart meshpilot")
