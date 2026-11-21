@@ -11,6 +11,7 @@ All notable changes are recorded here. The format follows [Keep a Changelog](htt
 ### Added
 - Capability records. A scan now says what each machine really supports and how sure it is: `detected` (a port is open), `available` (the service answered with its own greeting, checked for SSH, VNC, RDP and ADB), `unavailable` or `error`, each with evidence, a confidence level and an expiry (five minutes). Results are kept between page refreshes and the Machines page shows them, with the evidence in a tooltip.
 - `authz.py`: one place that decides who may view, scan or use a machine, with a stable reason code for every denial. The probe route uses it. Ownership, online state, role and capability freshness are checked in that order.
+- `agent/`: the core of the Mesh Pilot agent, a Go program that serves a machine's screen over RFB so the existing noVNC client works unchanged. It checks a token on every connection, handles pixel formats, resizing, pointer, keyboard and clipboard, and has pluggable screen and input backends. No real screen backend yet: `--demo` serves a synthetic screen.
 - README rewritten for public release, plus SECURITY.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, issue templates and a pull request template.
 
 ## [0.3.0] - 2026-11-19
