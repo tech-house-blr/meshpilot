@@ -5,18 +5,51 @@ import psutil
 import authz
 import connectors
 from audit import AuditLog
-from flask import Flask, jsonify, render_template, send_file, request, session, redirect, url_for, abort
+from sessions import SessionStore, IDLE_SECONDS, MAX_SECONDS
+from flask import Flask, g, jsonify, render_template, send_file, request, session, redirect, url_for, abort
+from flask.sessions import SecureCookieSessionInterface
 from werkzeug.security import check_password_hash
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-conf = json.load(open(os.path.join(BASE, "config.json")))
+# Runtime state (config, audit log, sessions, metrics) lives beside the code unless MESHPILOT_STATE_DIR says otherwise.
+STATE = os.environ.get("MESHPILOT_STATE_DIR", BASE)
+conf = json.load(open(os.path.join(STATE, "config.json")))
 
 app = Flask(__name__)
 app.secret_key = conf["secret_key"]
+SESSION_MAX = int(conf.get("session_max_seconds", MAX_SECONDS))
 app.config.update(SESSION_COOKIE_SAMESITE="Strict", SESSION_COOKIE_HTTPONLY=True,
-                  PERMANENT_SESSION_LIFETIME=60 * 60 * 12, MAX_CONTENT_LENGTH=2 * 1024 ** 3)
+                  PERMANENT_SESSION_LIFETIME=SESSION_MAX, MAX_CONTENT_LENGTH=2 * 1024 ** 3)
+sessions = SessionStore(os.path.join(STATE, "sessions.db"), idle=int(conf.get("session_idle_seconds", IDLE_SECONDS)),
+                        maximum=SESSION_MAX)
+
+
+def _https():
+    """True when the browser reached us over HTTPS: directly, or through a proxy on this machine (tailscale serve)."""
+    if request.is_secure:
+        return True
+    return request.remote_addr in ("127.0.0.1", "::1") and request.headers.get("X-Forwarded-Proto", "").lower() == "https"
+
+
+class _Cookies(SecureCookieSessionInterface):
+    def get_cookie_secure(self, app):
+        return _https()
+
+
+app.session_interface = _Cookies()
+
+
+def authed():
+    """The one place that decides whether this request has a live login. Checked against the server-side store."""
+    if "authed" not in g:
+        token = session.get("sid")
+        g.authed = sessions.validate(token) is not None
+        if token and not g.authed:
+            session.clear()
+            audit.record("session.rejected", ip=request.remote_addr, outcome="denied")
+    return g.authed
 psutil.cpu_percent(percpu=True)
-audit = AuditLog(os.path.join(BASE, "audit.log"))
+audit = AuditLog(os.path.join(STATE, "audit.log"))
 
 UNIT_RE = re.compile(r"^[A-Za-z0-9:_.@\\-]+\.(service|timer|socket)$")
 
@@ -74,7 +107,7 @@ def disks():
 def api(f):
     @wraps(f)
     def w(*a, **k):
-        if not session.get("auth"):
+        if not authed():
             return jsonify(error="auth"), 401
         if request.method == "POST" and request.headers.get("X-Requested-With") != "MeshPilot":
             return jsonify(error="bad request"), 400
@@ -89,7 +122,7 @@ AUDITED_GET = {"/api/fs/download"}
 @app.after_request
 def audit_requests(resp):
     p = request.path
-    if not p.startswith("/api/") or not session.get("auth"):
+    if not p.startswith("/api/") or not authed():
         return resp
     if request.method == "POST" or p in AUDITED_GET:
         d = request.get_json(silent=True) if request.is_json else None
@@ -102,6 +135,26 @@ def audit_requests(resp):
                 outcome = "error"
         audit.record(p[5:].strip("/").replace("/", "."), ip=request.remote_addr, outcome=outcome, **src)
     return resp
+
+
+@app.route("/api/sessions")
+@api
+def sessions_list():
+    return jsonify(sessions=sessions.listing(session.get("sid")), idle=sessions.idle, maximum=sessions.maximum)
+
+
+@app.route("/api/sessions/revoke", methods=["POST"])
+@api
+def sessions_revoke():
+    ref = str((request.get_json(silent=True) or {}).get("id", ""))
+    n = sessions.revoke_ref(ref)
+    return jsonify(ok=n > 0, revoked=n, error=None if n else "no such session")
+
+
+@app.route("/api/sessions/revoke-others", methods=["POST"])
+@api
+def sessions_revoke_others():
+    return jsonify(ok=True, revoked=sessions.revoke_others(session["sid"]))
 
 
 @app.route("/api/audit")
@@ -125,9 +178,12 @@ def login():
             err = "Too many attempts. Try again in a few minutes."
         elif check_password_hash(conf["password_hash"], request.form.get("password", "")):
             _fails.pop(ip, None)
+            old = session.get("sid")
+            if old:
+                sessions.revoke(old)
             session.clear()
             session.permanent = True
-            session["auth"] = True
+            session["sid"] = sessions.create(ip, request.headers.get("User-Agent"))
             audit.record("login", ip=ip)
             return redirect(url_for("index"))
         else:
@@ -139,22 +195,24 @@ def login():
 
 @app.route("/logout")
 def logout():
-    if session.get("auth"):
+    if authed():
         audit.record("logout", ip=request.remote_addr)
+    if session.get("sid"):
+        sessions.revoke(session["sid"])
     session.clear()
     return redirect(url_for("login"))
 
 
 @app.route("/")
 def index():
-    if not session.get("auth"):
+    if not authed():
         return redirect(url_for("login"))
     return send_file(os.path.join(BASE, "templates", "index.html"), max_age=0)
 
 
 # ---------- history sampler (SQLite, 7 day retention) ----------
 import sqlite3
-DB = os.path.join(BASE, "metrics.db")
+DB = os.path.join(STATE, "metrics.db")
 RANGES = {"5m": 300, "30m": 1800, "6h": 21600, "24h": 86400, "7d": 604800}
 LIVE = {"rx": 0.0, "tx": 0.0}
 
@@ -489,7 +547,7 @@ def protected(p):
 
 
 def secret(p):
-    return os.path.realpath(p) == os.path.join(os.path.realpath(BASE), "config.json")
+    return os.path.realpath(p) == os.path.join(os.path.realpath(STATE), "config.json")
 
 
 def modestr(m):
@@ -792,7 +850,7 @@ def desktop_status():
 
 @sock.route("/ws/desktop")
 def desktop_ws(ws):
-    if not session.get("auth"):
+    if not authed():
         return
     origin = request.headers.get("Origin", "")
     if origin and urlparse(origin).netloc != request.host:
